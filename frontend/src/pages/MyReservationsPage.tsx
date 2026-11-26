@@ -49,8 +49,7 @@ export default function MyReservationsPage() {
       </form>
       {error && <Banner message={error} />}
 
-      {searched && (
-        <section>
+      <section>
           <h2 className="mb-4 font-semibold">예약 내역</h2>
           {items.length === 0 ? (
             <div className="rounded-xl bg-surface py-14 text-center text-sm text-gray-500">예약 내역이 없습니다</div>
@@ -71,8 +70,7 @@ export default function MyReservationsPage() {
               ))}
             </ul>
           )}
-        </section>
-      )}
+      </section>
 
       {target && (
         <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/40 px-4" role="dialog" aria-modal="true">
