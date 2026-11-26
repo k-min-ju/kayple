@@ -14,7 +14,7 @@
 - 시간대: 모든 날짜 계산은 `Asia/Seoul`. 예약 가능 날짜 = 오늘 ~ 오늘+6일. 시간 = `[10,11,13,14,15,16,17]`.
 - 서브도메인 금지. 사용자 `/`, 관리자 `/admin`, API `/api/**`.
 - 관리자 비밀번호·DB 비밀번호는 서버 `/etc/kayple.env`(root 600)에만. 코드·Git·AI 대화 출력에 남기지 않는다.
-- 서버 기본 JDK 21 → Gradle `java.toolchain`/`release` 21.
+- 로컬·서버 모두 JDK 25 (서버는 systemd에서 /usr/lib/jvm/java-25-openjdk-amd64 지정, Gradle `release` 25).
 - 오류 문구(시안 고정): 중복 `이미 예약된 시간입니다. 다른 시간을 선택해 주세요.` / 연락처 `연락처 형식이 올바르지 않습니다` / 로그인 `아이디 또는 비밀번호가 올바르지 않습니다` / 빈 결과 `예약 내역이 없습니다`.
 - 오류 응답 형식: `{ "message": string, "field"?: string }`.
 

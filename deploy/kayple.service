@@ -5,7 +5,7 @@ After=network.target mysql.service
 [Service]
 User=ubuntu
 EnvironmentFile=/etc/kayple.env
-ExecStart=/usr/lib/jvm/java-21-openjdk-amd64/bin/java -Duser.timezone=Asia/Seoul -jar /opt/kayple/app.jar
+ExecStart=/usr/lib/jvm/java-25-openjdk-amd64/bin/java -Duser.timezone=Asia/Seoul -jar /opt/kayple/app.jar
 Restart=on-failure
 SuccessExitStatus=143
 

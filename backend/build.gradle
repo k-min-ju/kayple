@@ -7,8 +7,8 @@ plugins {
 group = 'com.kayple'
 version = '0.0.1-SNAPSHOT'
 
-// 서버 기본 JDK 21 에서 실행되도록 바이트코드 21 타깃
-tasks.withType(JavaCompile).configureEach { options.release = 21 }
+// 로컬·서버 모두 JDK 25 로 통일
+tasks.withType(JavaCompile).configureEach { options.release = 25 }
 
 bootJar { archiveFileName = 'app.jar' }
 
