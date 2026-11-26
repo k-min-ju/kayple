@@ -12,6 +12,10 @@ SECRET_PATTERNS = [
     (re.compile(r"\b[0-9a-f]{24}\b"), "***REDACTED***"),
     # 검증용 grep 명령에 들어간 비밀번호 앞 8자리 조각
     (re.compile(r"(\\\|)0[0-9a-f]{7}\b"), r"\1***REDACTED***"),
+    # 과제 안내 페이지 토큰(그 아래에서 SSH 키 zip 을 받을 수 있음)
+    (re.compile(r"\bkmj-[a-z0-9]{10}\b"), "kmj-***REDACTED***"),
+    # DB 비밀번호 앞부분 조각(따옴표·공백 뒤 6자리 이상 hex 로 시작하는 토큰)
+    (re.compile(r"(?<=[\"'\s|])0[0-9]{2}[a-f][0-9a-f]{2,}(?=[|\s\"'])"), "***REDACTED***"),
     (re.compile(r"((?:PASSWORD|password)\s*[=:]\s*)[^\s\"',}]+"), r"\1***REDACTED***"),
 ]
 
