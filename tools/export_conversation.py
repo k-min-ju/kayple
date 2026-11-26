@@ -10,6 +10,8 @@ import sys
 PROJECT = os.path.expanduser("~/.claude/projects/-Volumes-development-kayple")
 SECRET_PATTERNS = [
     (re.compile(r"\b[0-9a-f]{24}\b"), "***REDACTED***"),
+    # 검증용 grep 명령에 들어간 비밀번호 앞 8자리 조각
+    (re.compile(r"(\\\|)0[0-9a-f]{7}\b"), r"\1***REDACTED***"),
     (re.compile(r"((?:PASSWORD|password)\s*[=:]\s*)[^\s\"',}]+"), r"\1***REDACTED***"),
 ]
 
