@@ -20,7 +20,15 @@ SECRET_PATTERNS = [
 ]
 
 
+# 안내 페이지·키 zip 링크가 들어간 줄은 통째로 삭제
+LINK_LINE = re.compile(r"^.*https://recruit\.kayple\.com/kmj-.*$\n?", re.M)
+# 이전에 내보낸 대화를 다시 붙여넣은 블록은 중복이라 한 줄로 축약
+NESTED_EXPORT = re.compile(r"<pasted_content[^>]*>(?:(?!</pasted_content).)*?### Claude.*?</pasted_content[^>]*>", re.S)
+
+
 def redact(text: str) -> str:
+    text = LINK_LINE.sub("", text)
+    text = NESTED_EXPORT.sub("[이전에 내보낸 대화 일부를 붙여넣음 — 중복이라 생략]", text)
     for pattern, repl in SECRET_PATTERNS:
         text = pattern.sub(repl, text)
     return text

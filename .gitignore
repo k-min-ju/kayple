@@ -9,3 +9,4 @@ build/
 .env*
 *.pem
 .playwright-mcp/
+ai-conversation.md
