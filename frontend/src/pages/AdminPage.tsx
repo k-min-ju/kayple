@@ -80,15 +80,20 @@ function ReservationTable({ onUnauthorized }: { onUnauthorized: () => void }) {
     <main className="mx-auto w-full max-w-4xl px-4 py-14">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">예약 관리</h1>
-        <select value={date} onChange={(e) => setDate(e.target.value)} aria-label="날짜 선택"
-          className="h-12 w-48 rounded-lg border border-line bg-white px-4">
-          {dates.map((d) => <option key={d} value={d}>{dateLabel(d)}</option>)}
-        </select>
+        <div className="relative w-48">
+          <select value={date} onChange={(e) => setDate(e.target.value)} aria-label="날짜 선택"
+            className="h-12 w-full appearance-none rounded-lg border border-line bg-white pl-4 pr-10">
+            {dates.map((d) => <option key={d} value={d}>{dateLabel(d)}</option>)}
+          </select>
+          <svg aria-hidden="true" viewBox="0 0 20 20" className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-gray-500">
+            <path d="M5 7.5l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
       </div>
       {error && <Banner message={error} />}
-      <div className="overflow-x-auto rounded-xl border border-line">
+      <div className="max-h-[560px] overflow-auto rounded-xl border border-line">
         <table className="w-full min-w-[600px] text-left text-sm">
-          <thead className="bg-surface text-gray-500">
+          <thead className="sticky top-0 bg-surface text-gray-500">
             <tr>{['시간', '이름', '연락처', '상태', '예약 일시'].map((h) => <th key={h} className="px-6 py-4 font-normal">{h}</th>)}</tr>
           </thead>
           <tbody>

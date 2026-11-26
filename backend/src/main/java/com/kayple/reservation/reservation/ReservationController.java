@@ -40,19 +40,22 @@ public class ReservationController {
     @PostMapping("/reservations")
     @ResponseStatus(HttpStatus.CREATED)
     public ReservationResponse reserve(@Valid @RequestBody ReserveCommand command) {
-        return ReservationResponse.from(service.reserve(command));
+        return ReservationResponse.from(service.reserve(command), true);
     }
 
-    @GetMapping("/reservations")
-    public List<ReservationResponse> findByPhone(@RequestParam String phone) {
-        return service.findByPhone(phone).stream().map(ReservationResponse::from).toList();
-    }
+    public record PhoneRequest(String phone) {}
 
-    public record CancelRequest(String phone) {}
+    /** 연락처가 URL·접근 로그에 남지 않도록 POST 본문으로 받는다 */
+    @PostMapping("/reservations/lookup")
+    public List<ReservationResponse> findByPhone(@RequestBody PhoneRequest request) {
+        return service.findByPhone(request.phone()).stream()
+                .map(r -> ReservationResponse.from(r, service.isCancellable(r)))
+                .toList();
+    }
 
     @PostMapping("/reservations/{id}/cancel")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancel(@PathVariable Long id, @RequestBody CancelRequest request) {
+    public void cancel(@PathVariable Long id, @RequestBody PhoneRequest request) {
         service.cancel(id, request.phone());
     }
 }

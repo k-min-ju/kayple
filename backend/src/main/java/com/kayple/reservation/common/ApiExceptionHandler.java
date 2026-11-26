@@ -36,6 +36,9 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     ResponseEntity<ErrorResponse> handleUnknown(Exception e) {
+        if (e instanceof org.springframework.web.ErrorResponse spring) { // 404·405 등은 원래 상태코드 유지
+            return ResponseEntity.status(spring.getStatusCode()).body(new ErrorResponse("요청을 처리할 수 없습니다", null));
+        }
         log.error("Unhandled error", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse("일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", null));

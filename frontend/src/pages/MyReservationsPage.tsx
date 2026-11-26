@@ -54,7 +54,7 @@ export default function MyReservationsPage() {
           {items.length === 0 ? (
             <div className="rounded-xl bg-surface py-14 text-center text-sm text-gray-500">예약 내역이 없습니다</div>
           ) : (
-            <ul className="space-y-3">
+            <ul className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
               {items.map((r) => (
                 <li key={r.id} className="flex items-center rounded-xl bg-surface px-6 py-5">
                   <div>
@@ -63,7 +63,7 @@ export default function MyReservationsPage() {
                     </div>
                     <div className="mt-2 text-sm text-gray-500">{r.name}</div>
                   </div>
-                  {r.status === 'BOOKED' && (
+                  {r.cancellable && (
                     <Button variant="dangerOutline" className="ml-auto w-20" onClick={() => setTarget(r)}>취소</Button>
                   )}
                 </li>

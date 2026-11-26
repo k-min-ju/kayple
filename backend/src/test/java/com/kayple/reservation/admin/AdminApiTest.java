@@ -43,6 +43,11 @@ class AdminApiTest {
     }
 
     @Test
+    void unknownApiPathReturns404Not500() throws Exception {
+        mvc.perform(get("/api/nope")).andExpect(status().isNotFound());
+    }
+
+    @Test
     void wrongPasswordRejected() throws Exception {
         MockHttpSession session = login("wrong", 401);
         mvc.perform(get("/api/admin/reservations").param("date", "2026-11-27").session(session))

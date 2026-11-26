@@ -63,9 +63,14 @@ public class ReservationService {
     @Transactional
     public void cancel(Long id, String rawPhone) {
         Reservation reservation = repository.findByIdAndPhone(id, Phone.normalize(rawPhone))
-                .filter(r -> r.getStatus() == ReservationStatus.BOOKED)
+                .filter(r -> r.getStatus() == ReservationStatus.BOOKED && isCancellable(r))
                 .orElseThrow(() -> ApiException.notFound("취소할 예약을 찾을 수 없습니다"));
         reservation.cancel();
+    }
+
+    /** 이미 지난 상담은 이력 보존을 위해 취소 불가 */
+    public boolean isCancellable(Reservation r) {
+        return r.getStatus() == ReservationStatus.BOOKED && !policy.isPast(r.getDate(), r.getHour());
     }
 
     @Transactional(readOnly = true)

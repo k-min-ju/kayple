@@ -105,6 +105,19 @@ class ReservationServiceTest {
     }
 
     @Test
+    void cancelPastReservationRejected() {
+        // 고정 시각 12:30 기준 오늘 10시는 이미 지난 상담
+        Reservation past = repository.save(new Reservation(TODAY, 10, "홍길동", "01012345678",
+                TODAY.atTime(9, 0)));
+
+        assertThat(service.isCancellable(past)).isFalse();
+        assertThatThrownBy(() -> service.cancel(past.getId(), "010-1234-5678"))
+                .isInstanceOfSatisfying(ApiException.class,
+                        e -> assertThat(e.getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
+        assertThat(repository.findById(past.getId()).orElseThrow().getStatus()).isEqualTo(ReservationStatus.BOOKED);
+    }
+
+    @Test
     void lookupReturnsBothStatusesAndSlotsShowBooked() {
         Reservation a = service.reserve(cmd(TODAY.plusDays(1), 10, "010-1234-5678"));
         service.reserve(cmd(TODAY.plusDays(1), 13, "010-1234-5678"));

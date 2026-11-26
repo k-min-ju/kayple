@@ -10,6 +10,7 @@ export interface Reservation {
   phone: string // 사용자 API 는 마스킹, 관리자 API 는 전체
   status: Status
   createdAt: string // yyyy-MM-ddTHH:mm:ss
+  cancellable: boolean // 예약 중이고 아직 지나지 않은 상담
 }
 
 export class ApiError extends Error {
@@ -47,7 +48,7 @@ export const api = {
   reserve: (body: { date: string; hour: number; name: string; phone: string }) =>
     request<Reservation>('/api/reservations', post(body)),
   myReservations: (phone: string) =>
-    request<Reservation[]>(`/api/reservations?phone=${encodeURIComponent(phone)}`),
+    request<Reservation[]>('/api/reservations/lookup', post({ phone })),
   cancel: (id: number, phone: string) => request<void>(`/api/reservations/${id}/cancel`, post({ phone })),
   adminLogin: (username: string, password: string) => request<void>('/api/admin/login', post({ username, password })),
   adminLogout: () => request<void>('/api/admin/logout', { method: 'POST' }),

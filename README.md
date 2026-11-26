@@ -34,8 +34,8 @@ docs/      과제 명세(assignment.md), 구현 계획
 | GET | `/api/dates` | 예약 가능 날짜(서버 KST 기준 오늘~+6일) |
 | GET | `/api/slots?date=` | 시간별 예약 가능 여부(예약됨·지난 시간은 `available:false`) |
 | POST | `/api/reservations` | 예약 생성. 400(입력 오류, `field` 포함) / 409(중복) |
-| GET | `/api/reservations?phone=` | 연락처로 조회(연락처 마스킹) |
-| POST | `/api/reservations/{id}/cancel` | `{phone}` 일치 시 취소, 불일치는 404 |
+| POST | `/api/reservations/lookup` | `{phone}` 로 조회(연락처 마스킹, URL·로그에 연락처 미노출). 지난 예약은 `cancellable:false` |
+| POST | `/api/reservations/{id}/cancel` | `{phone}` 일치 + 아직 지나지 않은 예약만 취소, 그 외 404 |
 | POST | `/api/admin/login`, `/api/admin/logout` | 세션 로그인 |
 | GET | `/api/admin/me`, `/api/admin/reservations?date=` | 비로그인 시 401 |
 
@@ -70,7 +70,7 @@ KEY=~/Downloads/recruit-kmj.pem ./deploy/deploy.sh
 **한 것**
 - 요구 기능 1~7 전부: 날짜·시간 선택(마감 표시), 입력 검증(클라이언트+서버), 서버 중복 차단(409 → 화면 배너), 연락처 조회·취소(확인 모달), 관리자 로그인·날짜별 목록·API 보호, 테스트, HTTPS 배포
 - 시안 10개 화면
-- 테스트 9개(`./gradlew test`): 중복 409, **동시 요청 2건 중 1건만 성공**, 취소 후 재예약, 범위 밖(8일째·어제·12시·오늘 지난 시간), 연락처 불일치 취소 거부, 조회·마감 표시, 관리자 비로그인 401·잘못된 비밀번호·로그인/로그아웃
+- 테스트 13개(`./gradlew test`): 지난 예약 취소 거부, 없는 API 404, KST 자정 날짜 전환 포함: 중복 409, **동시 요청 2건 중 1건만 성공**, 취소 후 재예약, 범위 밖(8일째·어제·12시·오늘 지난 시간), 연락처 불일치 취소 거부, 조회·마감 표시, 관리자 비로그인 401·잘못된 비밀번호·로그인/로그아웃
 - 운영 URL 에서 curl 로 수용 기준 13개 항목 확인
 
 **못 한 것 / 한계**
@@ -78,6 +78,7 @@ KEY=~/Downloads/recruit-kmj.pem ./deploy/deploy.sh
 - 로그인·예약 API 레이트 리밋 없음(관리자 비밀번호는 랜덤 16자)
 - 관리자 날짜 선택은 예약 가능 7일만(과거 날짜 조회 불가)
 - 배포 시 JVM 재시작 동안 약 10초 502
+- 연락처만으로 조회·취소(과제 요구사항). 연락처를 아는 타인도 조회·취소 가능
 - 스키마는 `ddl-auto: update` (마이그레이션 도구 없음)
 
 ## AI 가 만든 코드에서 직접 판단해 고친 부분
@@ -90,6 +91,6 @@ KEY=~/Downloads/recruit-kmj.pem ./deploy/deploy.sh
 - **시크릿 노출 사고 대응**: 서버 안내 파일을 마스킹해 읽으려던 정규식이 한국어 표기를 놓쳐 DB 비밀번호가 AI 대화에 출력됨 → 이후 시크릿은 서버 안에서만 파일로 옮기고, 제출용 대화 내보내기에서 마스킹
 
 ## 팀원에게 넘길 작업 지시 3개
-1. **남용 방지**: nginx `limit_req` 로 `/api/admin/login`(분당 5회)·`POST /api/reservations`(IP당 분당 10회) 제한. 연락처 조회는 `GET ?phone=` 대신 `POST /api/reservations/lookup` 로 바꿔 nginx 접근 로그에 연락처가 남지 않게 할 것. 완료 기준: 초과 시 429, 기존 테스트 통과.
+1. **남용·도용 방지**: nginx `limit_req` 로 `/api/admin/login`(분당 5회)·`POST /api/reservations`·`/lookup`(IP당 분당 10회) 제한. 연락처만 알면 남의 예약을 조회·취소할 수 있으므로 예약번호(또는 SMS 인증)를 함께 확인하도록 변경. 완료 기준: 초과 시 429, 예약번호 불일치 취소 404 테스트.
 2. **배포 안정화**: `ddl-auto: update` 를 Flyway `V1__init.sql`(slot_key UNIQUE 포함)로 교체하고 `validate` 로 전환. GitHub Actions 로 `./gradlew test` + `pnpm build` 를 PR 마다 실행. 완료 기준: 빈 DB 에서 마이그레이션만으로 기동, CI 녹색.
 3. **프론트 회귀 테스트**: Playwright 로 예약→중복 409 배너→내 예약 조회→취소→관리자 로그인/목록 E2E 1개 시나리오 작성. springdoc + orval 로 API 타입 자동 생성 도입 검토. 완료 기준: CI 에서 E2E 통과.
